@@ -1,0 +1,11 @@
+use_frameworks!
+
+target 'SideViewManager_Example' do
+  pod 'SideViewManager', :path => '../'
+
+  target 'SideViewManager_Tests' do
+    inherit! :search_paths
+
+    
+  end
+end
