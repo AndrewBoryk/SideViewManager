@@ -1,0 +1,6 @@
+framework module SideViewManager {
+  umbrella header "SideViewManager-umbrella.h"
+
+  export *
+  module * { export * }
+}

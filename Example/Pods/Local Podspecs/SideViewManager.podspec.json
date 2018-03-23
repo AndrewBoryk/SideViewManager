@@ -1,0 +1,22 @@
+{
+  "name": "SideViewManager",
+  "version": "0.1.0",
+  "summary": "A short description of SideViewManager.",
+  "description": "TODO: Add long description of the pod here.",
+  "homepage": "https://github.com/AndrewBoryk/SideViewManager",
+  "license": {
+    "type": "MIT",
+    "file": "LICENSE"
+  },
+  "authors": {
+    "AndrewBoryk": "aboryk@its.jnj.com"
+  },
+  "source": {
+    "git": "https://github.com/AndrewBoryk/SideViewManager.git",
+    "tag": "0.1.0"
+  },
+  "platforms": {
+    "ios": "8.0"
+  },
+  "source_files": "SideViewManager/Classes/**/*"
+}
