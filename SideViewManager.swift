@@ -15,7 +15,13 @@ public protocol SideViewManagerDelegate: class {
 
 public class SideViewManager {
     
+    public enum SwipeDirection {
+        case horizontal
+        case vertical
+    }
+    
     public let sideController: UIViewController
+    public var swipeDirection: SwipeDirection = .horizontal
     public weak var delegate: SideViewManagerDelegate?
     
     public lazy var offScreenFrame: CGRect = {
@@ -36,7 +42,7 @@ public class SideViewManager {
         return CGRect(x: 0, y: 0, width: frame.width, height: frame.height)
     }()
     
-    lazy var dismissGesture: UITapGestureRecognizer = {
+    public lazy var dismissGesture: UITapGestureRecognizer = {
         let gesture = UITapGestureRecognizer(target: self, action: #selector(dismiss))
         gesture.numberOfTapsRequired = 1
         gesture.cancelsTouchesInView = false
@@ -45,7 +51,7 @@ public class SideViewManager {
         return gesture
     }()
     
-    lazy var swipeGesture: UIPanGestureRecognizer = {
+    public lazy var swipeGesture: UIPanGestureRecognizer = {
         let gesture = UIPanGestureRecognizer(target: self, action: #selector(panHandler))
         gesture.minimumNumberOfTouches = 1
         gesture.maximumNumberOfTouches = 1
@@ -80,17 +86,12 @@ public class SideViewManager {
             return 0
         }
         
-        if offScreenFrame.origin.x != onScreenFrame.origin.x {
-            return (sideView.frame.origin.x - onScreenFrame.origin.x) - (offScreenFrame.origin.x - onScreenFrame.origin.x)
-        } else if offScreenFrame.origin.y != onScreenFrame.origin.y {
-            return (sideView.frame.origin.y - onScreenFrame.origin.y) - (offScreenFrame.origin.y - onScreenFrame.origin.y)
-        } else if offScreenFrame.width != onScreenFrame.width {
-            return (sideView.frame.width - onScreenFrame.width) - (offScreenFrame.width - onScreenFrame.width)
-        } else if offScreenFrame.height != onScreenFrame.height {
-            return (sideView.frame.height - onScreenFrame.height) - (offScreenFrame.height - onScreenFrame.height)
+        switch swipeDirection {
+        case .horizontal:
+            return (offScreenFrame.origin.x - sideView.frame.origin.x) / (offScreenFrame.origin.x - onScreenFrame.origin.x)
+        case .vertical:
+            return (offScreenFrame.origin.y - sideView.frame.origin.y) / (offScreenFrame.origin.y - onScreenFrame.origin.y)
         }
-        
-        return 0
     }
     
     public init(sideController: UIViewController) {
@@ -165,19 +166,38 @@ public class SideViewManager {
         switch recognizer.state {
         case .began:
             panLastVelocity = .zero
-            panStartLocation = window.subviews.contains(sideController.view) ? sideController.view.frame.origin.x : window.frame.width
+            
+            let origin = sideController.view.frame.origin
+            let constainsView = window.subviews.contains(sideController.view)
+            switch swipeDirection {
+            case .horizontal:
+                panStartLocation = constainsView ? origin.x : window.frame.width
+            case .vertical:
+                panStartLocation = constainsView ? origin.y : window.frame.height
+            }
         case .changed:
-            panLastVelocity = recognizer.velocity(in: window)
+            let velocity = recognizer.velocity(in: window)
+            switch swipeDirection {
+            case .horizontal where velocity.x != 0,
+                 .vertical where velocity.y != 0:
+                panLastVelocity = velocity
+            default:
+                break
+            }
             
             let maxOffset = window.frame.width
-            let translation = panStartLocation + recognizer.translation(in: window).x
-            let panTranslation = translation.clamped(min: maxOffset - sideWidth, max: maxOffset)
-            let offset = (maxOffset - panTranslation) / sideWidth
+            let isHorizontal = swipeDirection == .horizontal
+            let rTranslation = recognizer.translation(in: window)
+            let translation = panStartLocation + (isHorizontal ? rTranslation.x : rTranslation.y)
+            let comparisonOffset = isHorizontal ? sideWidth : sideHeight
+            let panTranslation = translation.clamped(min: maxOffset - comparisonOffset, max: maxOffset)
+            let offset = (maxOffset - panTranslation) / comparisonOffset
             move(to: offset, duration: 0)
         case .ended:
-            let shouldDismissOffset: CGFloat = (currentOffset < (panLastVelocity.x > 1000 ? 0.9 : 0.6)) ? 0 : 1
-            let shouldPresentOffset: CGFloat = (currentOffset > 0.25 || panLastVelocity.x < -1000) ? 1 : 0
-            move(to: panLastVelocity.x > 0 ? shouldDismissOffset : shouldPresentOffset)
+            let velocity = swipeDirection == .horizontal ? panLastVelocity.x : panLastVelocity.y
+            let shouldDismissOffset: CGFloat = (currentOffset < (velocity > 1000 ? 0.9 : 0.6)) ? 0 : 1
+            let shouldPresentOffset: CGFloat = (currentOffset > 0.25 || velocity < -1000) ? 1 : 0
+            move(to: velocity > 0 ? shouldDismissOffset : shouldPresentOffset)
         default:
             break;
         }
