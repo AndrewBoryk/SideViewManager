@@ -22,18 +22,19 @@ class ViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-//        let originY = UIApplication.shared.statusBarFrame.height + 4
-//        let sideWidth: CGFloat = 300
-//        let sideHeight = sideController.view.frame.height - originY * 2
+        let originY = UIApplication.shared.statusBarFrame.height + 4
+        let sideWidth: CGFloat = 300
+        let sideHeight = sideController.view.frame.height - originY * 2
+        let offScreenFrame = CGRect(x: view.frame.width, y: originY, width: sideWidth, height: sideHeight)
+        let onScreenFrame = CGRect(x: view.frame.width - sideWidth, y: originY, width: sideWidth, height: sideHeight)
         
-//        manager.offScreenFrame = CGRect(x: view.frame.width, y: originY, width: sideWidth, height: sideHeight)
-//        manager.onScreenFrame = CGRect(x: view.frame.width - sideWidth, y: originY, width: sideWidth, height: sideHeight)
+        manager = SideViewManager(sideController: sideController, onScreenFrame: onScreenFrame, offScreenFrame: offScreenFrame)
         
-        manager.swipeDirection = .vertical
+//        manager.swipeDirection = .vertical
         
-        let sideHeight = view.frame.height
-        manager.offScreenFrame = CGRect(x: 0, y: sideHeight, width: view.frame.width, height: sideHeight)
-        
+//        let sideHeight = view.frame.height
+//        manager.offScreenFrame = CGRect(x: 0, y: sideHeight, width: view.frame.width, height: sideHeight)
+//
         manager.setSwipeGesture(isEnabled: true)
         manager.setDismissGesture(isEnabled: true)
     }

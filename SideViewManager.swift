@@ -82,27 +82,34 @@ public class SideViewManager {
     }
     
     private var currentOffset: CGFloat {
-        guard let sideView = sideController.view else {
-            return 0
-        }
-        
+        let onOrigin = onScreenFrame.origin
+        let offOrigin = offScreenFrame.origin
+        let sideOrigin = sideController.view.frame.origin
         switch swipeDirection {
         case .horizontal:
-            return (offScreenFrame.origin.x - sideView.frame.origin.x) / (offScreenFrame.origin.x - onScreenFrame.origin.x)
+            return (offOrigin.x - sideOrigin.x) / (offOrigin.x - onOrigin.x)
         case .vertical:
-            return (offScreenFrame.origin.y - sideView.frame.origin.y) / (offScreenFrame.origin.y - onScreenFrame.origin.y)
+            return (offOrigin.y - sideOrigin.y) / (offOrigin.y - onOrigin.y)
         }
     }
     
-    public init(sideController: UIViewController) {
+    public init(sideController: UIViewController, onScreenFrame: CGRect? = nil, offScreenFrame: CGRect? = nil) {
         self.sideController = sideController
+        
+        if let onScreenFrame = onScreenFrame {
+            self.onScreenFrame = onScreenFrame
+        }
+        
+        if let onScreenFrame = offScreenFrame {
+            self.offScreenFrame = onScreenFrame
+        }
         
         guard let window = window, let sideView = sideController.view else {
             return
         }
         
         if !window.subviews.contains(sideView) {
-            sideView.frame = offScreenFrame
+            sideView.frame = self.offScreenFrame
             sideView.setShadow()
             
             window.addSubview(sideView)
@@ -127,6 +134,10 @@ public class SideViewManager {
         }
         
         delegate?.didChange(gesture: gesture, to: isEnabled)
+    }
+    
+    public func resetToOffscreen() {
+        move(to: 0, duration: 0)
     }
     
     public func move(to offset: CGFloat, duration: TimeInterval = 0.25) {
@@ -185,8 +196,8 @@ public class SideViewManager {
                 break
             }
             
-            let maxOffset = window.frame.width
             let isHorizontal = swipeDirection == .horizontal
+            let maxOffset = isHorizontal ? window.frame.width : window.frame.height
             let rTranslation = recognizer.translation(in: window)
             let translation = panStartLocation + (isHorizontal ? rTranslation.x : rTranslation.y)
             let comparisonOffset = isHorizontal ? sideWidth : sideHeight
@@ -201,6 +212,10 @@ public class SideViewManager {
         default:
             break;
         }
+    }
+    
+    deinit {
+        sideController.view.removeFromSuperview()
     }
 }
 
