@@ -20,10 +20,16 @@ public class SideViewManager {
         case vertical
     }
     
+    /// The controller which will have its view controller by this manager
     public let sideController: UIViewController
+    
+    /// Direction that the manager's pan recognizer will recognize when enabled
     public var swipeDirection: SwipeDirection = .horizontal
+    
+    /// Delegate for the SideViewManager
     public weak var delegate: SideViewManagerDelegate?
     
+    /// Frame for when the `sideController`'s view should be off-screen, or otherwise the default position of the `sideController`'s view
     public lazy var offScreenFrame: CGRect = {
         guard let window = window else {
             return .zero
@@ -33,6 +39,7 @@ public class SideViewManager {
         return CGRect(x: frame.width, y: 0, width: frame.width, height: frame.height)
     }()
     
+    /// Frame for when the `sideController`'s view should be on-screen, or otherwise the final "fully presented" position of the `sideController`'s view
     public lazy var onScreenFrame: CGRect = {
         guard let window = window else {
             return .zero
@@ -42,8 +49,9 @@ public class SideViewManager {
         return CGRect(x: 0, y: 0, width: frame.width, height: frame.height)
     }()
     
+    /// Gesture for when the side view is presented, and tapping outside of the view will dismiss it
     public lazy var dismissGesture: UITapGestureRecognizer = {
-        let gesture = UITapGestureRecognizer(target: self, action: #selector(dismiss))
+        let gesture = UITapGestureRecognizer(target: self, action: #selector(dismiss(_:)))
         gesture.numberOfTapsRequired = 1
         gesture.cancelsTouchesInView = false
         gesture.delaysTouchesBegan = false
@@ -51,6 +59,7 @@ public class SideViewManager {
         return gesture
     }()
     
+    /// Gesture for swiping the side view on and off the screen
     public lazy var swipeGesture: UIPanGestureRecognizer = {
         let gesture = UIPanGestureRecognizer(target: self, action: #selector(panHandler))
         gesture.minimumNumberOfTouches = 1
@@ -62,25 +71,18 @@ public class SideViewManager {
         return gesture
     }()
     
+    /// The starting origin value for the side view when the pan gesture begins
     private var panStartLocation: CGFloat = 0
+    
+    /// The last velocity of the pan gesture, where after beginning, will be anything other than 0
     private var panLastVelocity: CGPoint = .zero
     
-    private var sideWidth: CGFloat {
-        return onScreenFrame.width
-    }
-    
-    private var sideHeight: CGFloat {
-        return onScreenFrame.height
-    }
-    
-    private var sideOffsetY: CGFloat {
-        return onScreenFrame.origin.y
-    }
-    
+    /// Easily accessible application's keyWindow
     private var window: UIWindow? {
         return UIApplication.shared.keyWindow
     }
     
+    /// Returns the current offset of the side view
     private var currentOffset: CGFloat {
         let onOrigin = onScreenFrame.origin
         let offOrigin = offScreenFrame.origin
@@ -93,15 +95,22 @@ public class SideViewManager {
         }
     }
     
-    public init(sideController: UIViewController, onScreenFrame: CGRect? = nil, offScreenFrame: CGRect? = nil) {
+    // MARK: - Initializer
+    /// Initialize a `SideViewManager` with a sideController to manage its view, and customizable on-screen and off-screen frames
+    ///
+    /// - Parameters:
+    ///   - sideController: The controller that will have its view managed by the manager
+    ///   - offScreenFrame: The frame that the sideController's view should be at when off-screen, or otherwise at its default state
+    ///   - onScreenFrame: The frame that the sideController's view should be at when on-screen, or otherwise at its full-presented state
+    public init(sideController: UIViewController, offScreenFrame: CGRect? = nil, onScreenFrame: CGRect? = nil) {
         self.sideController = sideController
-        
-        if let onScreenFrame = onScreenFrame {
-            self.onScreenFrame = onScreenFrame
-        }
         
         if let onScreenFrame = offScreenFrame {
             self.offScreenFrame = onScreenFrame
+        }
+        
+        if let onScreenFrame = onScreenFrame {
+            self.onScreenFrame = onScreenFrame
         }
         
         guard let window = window, let sideView = sideController.view else {
@@ -116,30 +125,18 @@ public class SideViewManager {
         }
     }
     
+    // MARK: - Public
+    /// Toggle swipe to dismiss/present the sideController's view
     public func setSwipeGesture(isEnabled: Bool) {
         set(gesture: swipeGesture, isEnabled: isEnabled)
     }
     
+    /// Toggle tap-away to dismiss the sideController's view
     public func setDismissGesture(isEnabled: Bool) {
         set(gesture: dismissGesture, isEnabled: isEnabled)
     }
     
-    private func set(gesture: UIGestureRecognizer, isEnabled: Bool) {
-        let contains = window?.gestureRecognizers?.contains(gesture) ?? false
-        
-        if !contains && isEnabled {
-            window?.addGestureRecognizer(gesture)
-        } else if contains && !isEnabled {
-            window?.removeGestureRecognizer(gesture)
-        }
-        
-        delegate?.didChange(gesture: gesture, to: isEnabled)
-    }
-    
-    public func resetToOffscreen() {
-        move(to: 0, duration: 0)
-    }
-    
+    /// Set the sideController's view to a specific offset (0 being fully off-screen and 1 being fully on-screen), at a given animation duration, which is defaulted to 0.25 seconds
     public func move(to offset: CGFloat, duration: TimeInterval = 0.25) {
         guard let sideView = sideController.view else {
             return
@@ -154,6 +151,31 @@ public class SideViewManager {
         }
     }
     
+    /// Present the sideController's view, which means to move it to its `onScreenFrame` value, at a given animation duration, which is defaulted to 0.25 seconds
+    public func present(animationDuration: TimeInterval = 0.25) {
+        move(to: 1, duration: animationDuration)
+    }
+    
+    /// Dismiss the sideController's view, which means to move it to its `offScreenFrame` value, at a given animation duration, which is defaulted to 0.25 seconds
+    public func dismiss(animationDuration: TimeInterval = 0.25) {
+        move(to: 0, duration: animationDuration)
+    }
+    
+    // MARK: - Private
+    /// Sets the given gesture to enabled/disabled, and adds/removes from the window when needed
+    private func set(gesture: UIGestureRecognizer, isEnabled: Bool) {
+        let contains = window?.gestureRecognizers?.contains(gesture) ?? false
+        
+        if !contains && isEnabled {
+            window?.addGestureRecognizer(gesture)
+        } else if contains && !isEnabled {
+            window?.removeGestureRecognizer(gesture)
+        }
+        
+        delegate?.didChange(gesture: gesture, to: isEnabled)
+    }
+    
+    /// Handles the tap gesture for the `dismissGesture`
     @objc private func dismiss(_ recognizer: UITapGestureRecognizer) {
         guard let sideView = sideController.view, currentOffset == 1 else {
             return
@@ -168,6 +190,7 @@ public class SideViewManager {
         }
     }
     
+    /// Handles the pan gesture for the `swipeGesture`
     @objc private func panHandler(_ recognizer: UIPanGestureRecognizer) {
         guard let window = window else {
             return
@@ -200,7 +223,7 @@ public class SideViewManager {
             let maxOffset = isHorizontal ? window.frame.width : window.frame.height
             let rTranslation = recognizer.translation(in: window)
             let translation = panStartLocation + (isHorizontal ? rTranslation.x : rTranslation.y)
-            let comparisonOffset = isHorizontal ? sideWidth : sideHeight
+            let comparisonOffset = isHorizontal ? onScreenFrame.width : onScreenFrame.height
             let panTranslation = translation.clamped(min: maxOffset - comparisonOffset, max: maxOffset)
             let offset = (maxOffset - panTranslation) / comparisonOffset
             move(to: offset, duration: 0)

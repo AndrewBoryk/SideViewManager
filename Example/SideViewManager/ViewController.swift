@@ -17,7 +17,7 @@ class ViewController: UIViewController {
         return controller
     }()
 
-    private lazy var manager = SideViewManager(sideController: sideController)
+    private var manager: SideViewManager!
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -28,7 +28,7 @@ class ViewController: UIViewController {
         let offScreenFrame = CGRect(x: view.frame.width, y: originY, width: sideWidth, height: sideHeight)
         let onScreenFrame = CGRect(x: view.frame.width - sideWidth, y: originY, width: sideWidth, height: sideHeight)
         
-        manager = SideViewManager(sideController: sideController, onScreenFrame: onScreenFrame, offScreenFrame: offScreenFrame)
+        manager = SideViewManager(sideController: sideController, offScreenFrame: offScreenFrame, onScreenFrame: onScreenFrame)
         
 //        manager.swipeDirection = .vertical
         
