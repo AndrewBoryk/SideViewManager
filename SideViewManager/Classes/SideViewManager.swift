@@ -192,7 +192,7 @@ public class SideViewManager {
         }
         
         let sideFrame = view.frame
-        let loc = recognizer.location(in: sideView)
+        let loc = recognizer.location(in: view)
         if loc.x < 0 || loc.x > sideFrame.width {
             move(to: 0)
         } else if loc.y < 0 || loc.y > sideFrame.height {
