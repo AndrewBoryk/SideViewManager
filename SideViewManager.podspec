@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'SideViewManager'
-  s.version          = '0.1.0'
+  s.version          = '0.2.0'
   s.summary          = 'A manager for controlling the presentation of a view moving on and off screen.'
 
 # This description is used to generate tags and improve search results.
