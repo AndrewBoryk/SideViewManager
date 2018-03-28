@@ -22,7 +22,7 @@ pod 'SideViewManager'
 
 ## Author
 
-AndrewBoryk, aboryk@its.jnj.com
+AndrewBoryk, andrewcboryk@gmail.com
 
 ## License
 

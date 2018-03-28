@@ -17,24 +17,34 @@ class ViewController: UIViewController {
         return controller
     }()
 
-    private var manager: SideViewManager!
+    private lazy var manager = horizontalManager
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        
+    private var horizontalManager: SideViewManager {
         let originY = UIApplication.shared.statusBarFrame.height + 4
         let sideWidth: CGFloat = 300
         let sideHeight = sideController.view.frame.height - originY * 2
         let offScreenFrame = CGRect(x: view.frame.width, y: originY, width: sideWidth, height: sideHeight)
         let onScreenFrame = CGRect(x: view.frame.width - sideWidth, y: originY, width: sideWidth, height: sideHeight)
         
-        manager = SideViewManager(sideController: sideController, offScreenFrame: offScreenFrame, onScreenFrame: onScreenFrame)
+        let manager = SideViewManager(sideController: sideController, offScreenFrame: offScreenFrame, onScreenFrame: onScreenFrame)
+        manager.swipeDirection = .horizontal
         
-//        manager.swipeDirection = .vertical
+        return manager
+    }
+    
+    private var verticalManager: SideViewManager {
+        let sideHeight = view.frame.height
+        let offScreenFrame = CGRect(x: 0, y: sideHeight, width: view.frame.width, height: sideHeight)
+        let onScreenFrame = CGRect(x: 0, y: sideHeight, width: view.frame.width, height: sideHeight)
         
-//        let sideHeight = view.frame.height
-//        manager.offScreenFrame = CGRect(x: 0, y: sideHeight, width: view.frame.width, height: sideHeight)
-//
+        let manager = SideViewManager(sideController: sideController, offScreenFrame: offScreenFrame, onScreenFrame: onScreenFrame)
+        manager.swipeDirection = .vertical
+        return manager
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
         manager.setSwipeGesture(isEnabled: true)
         manager.setDismissGesture(isEnabled: true)
     }

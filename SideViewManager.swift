@@ -9,7 +9,12 @@ import UIKit
 
 public protocol SideViewManagerDelegate: class {
     
+    /// The SideViewManager did finish moving to a given offset
+    ///
+    /// - Parameter offset: Offset that the SideViewManager's view has moved to (0 is off-screen, 1 is on-screen, and values can vary between these)
     func didFinishAnimating(to offset: CGFloat)
+    
+    /// Listen for whether a gesture in the SideViewManager has been enabled/disabled
     func didChange(gesture: UIGestureRecognizer, to isEnabled: Bool)
 }
 
@@ -21,7 +26,10 @@ public class SideViewManager {
     }
     
     /// The controller which will have its view controller by this manager
-    public let sideController: UIViewController
+    private(set) public var sideController: UIViewController?
+    
+    /// The view which will have its v
+    private(set) public var sideView: UIView?
     
     /// Direction that the manager's pan recognizer will recognize when enabled
     public var swipeDirection: SwipeDirection = .horizontal
@@ -29,7 +37,7 @@ public class SideViewManager {
     /// Delegate for the SideViewManager
     public weak var delegate: SideViewManagerDelegate?
     
-    /// Frame for when the `sideController`'s view should be off-screen, or otherwise the default position of the `sideController`'s view
+    /// Frame for when the view should be off-screen, or otherwise the default position of the managed view
     public lazy var offScreenFrame: CGRect = {
         guard let window = window else {
             return .zero
@@ -39,7 +47,7 @@ public class SideViewManager {
         return CGRect(x: frame.width, y: 0, width: frame.width, height: frame.height)
     }()
     
-    /// Frame for when the `sideController`'s view should be on-screen, or otherwise the final "fully presented" position of the `sideController`'s view
+    /// Frame for when the view should be on-screen, or otherwise the final "fully presented" position of the managed view
     public lazy var onScreenFrame: CGRect = {
         guard let window = window else {
             return .zero
@@ -71,6 +79,19 @@ public class SideViewManager {
         return gesture
     }()
     
+    /// The view, whether it be from the sideController or sideView, that will be managed
+    private var view: UIView {
+        guard let view = sideController?.view else {
+            guard let view = sideView else {
+                fatalError("SideViewManager needs to be initialized with a sideController or sideView that is non-null")
+            }
+            
+            return view
+        }
+        
+        return view
+    }
+    
     /// The starting origin value for the side view when the pan gesture begins
     private var panStartLocation: CGFloat = 0
     
@@ -86,7 +107,7 @@ public class SideViewManager {
     private var currentOffset: CGFloat {
         let onOrigin = onScreenFrame.origin
         let offOrigin = offScreenFrame.origin
-        let sideOrigin = sideController.view.frame.origin
+        let sideOrigin = view.frame.origin
         switch swipeDirection {
         case .horizontal:
             return (offOrigin.x - sideOrigin.x) / (offOrigin.x - onOrigin.x)
@@ -104,25 +125,18 @@ public class SideViewManager {
     ///   - onScreenFrame: The frame that the sideController's view should be at when on-screen, or otherwise at its full-presented state
     public init(sideController: UIViewController, offScreenFrame: CGRect? = nil, onScreenFrame: CGRect? = nil) {
         self.sideController = sideController
-        
-        if let onScreenFrame = offScreenFrame {
-            self.offScreenFrame = onScreenFrame
-        }
-        
-        if let onScreenFrame = onScreenFrame {
-            self.onScreenFrame = onScreenFrame
-        }
-        
-        guard let window = window, let sideView = sideController.view else {
-            return
-        }
-        
-        if !window.subviews.contains(sideView) {
-            sideView.frame = self.offScreenFrame
-            sideView.setShadow()
-            
-            window.addSubview(sideView)
-        }
+        update(offScreenFrame: offScreenFrame, onScreenFrame: onScreenFrame)
+    }
+    
+    /// Initialize a `SideViewManager` with a view to manage, and customizable on-screen and off-screen frames
+    ///
+    /// - Parameters:
+    ///   - view: View which will be managed
+    ///   - offScreenFrame: The frame that the sideController's view should be at when off-screen, or otherwise at its default state
+    ///   - onScreenFrame: The frame that the sideController's view should be at when on-screen, or otherwise at its full-presented state
+    public init(view: UIView, offScreenFrame: CGRect? = nil, onScreenFrame: CGRect? = nil) {
+        sideView = view
+        update(offScreenFrame: offScreenFrame, onScreenFrame: onScreenFrame)
     }
     
     // MARK: - Public
@@ -138,14 +152,10 @@ public class SideViewManager {
     
     /// Set the sideController's view to a specific offset (0 being fully off-screen and 1 being fully on-screen), at a given animation duration, which is defaulted to 0.25 seconds
     public func move(to offset: CGFloat, duration: TimeInterval = 0.25) {
-        guard let sideView = sideController.view else {
-            return
-        }
-        
         let newOffset = 1 - offset.clamped(min: 0, max: 1)
         let newFrame = CGRect(offset: newOffset, offScreen: offScreenFrame, onScreen: onScreenFrame)
         UIView.animate(withDuration: duration, delay: 0, options: .curveEaseOut, animations: {
-            sideView.frame = newFrame
+            self.view.frame = newFrame
         }) { _ in
             self.delegate?.didFinishAnimating(to: offset)
         }
@@ -177,11 +187,11 @@ public class SideViewManager {
     
     /// Handles the tap gesture for the `dismissGesture`
     @objc private func dismiss(_ recognizer: UITapGestureRecognizer) {
-        guard let sideView = sideController.view, currentOffset == 1 else {
+        guard currentOffset == 1 else {
             return
         }
         
-        let sideFrame = sideView.frame
+        let sideFrame = view.frame
         let loc = recognizer.location(in: sideView)
         if loc.x < 0 || loc.x > sideFrame.width {
             move(to: 0)
@@ -201,8 +211,8 @@ public class SideViewManager {
         case .began:
             panLastVelocity = .zero
             
-            let origin = sideController.view.frame.origin
-            let constainsView = window.subviews.contains(sideController.view)
+            let origin = view.frame.origin
+            let constainsView = window.subviews.contains(view)
             switch swipeDirection {
             case .horizontal:
                 panStartLocation = constainsView ? origin.x : window.frame.width
@@ -237,8 +247,30 @@ public class SideViewManager {
         }
     }
     
+    /// Updates the offScreenFrame and onScreenFrame if non-nil, shared in the initializers and not to be used elsewhere
+    private func update(offScreenFrame: CGRect? = nil, onScreenFrame: CGRect? = nil) {
+        if let onScreenFrame = offScreenFrame {
+            self.offScreenFrame = onScreenFrame
+        }
+        
+        if let onScreenFrame = onScreenFrame {
+            self.onScreenFrame = onScreenFrame
+        }
+        
+        guard let window = window else {
+            return
+        }
+        
+        if !window.subviews.contains(view) {
+            view.frame = self.offScreenFrame
+            view.setShadow()
+            
+            window.addSubview(view)
+        }
+    }
+    
     deinit {
-        sideController.view.removeFromSuperview()
+        view.removeFromSuperview()
     }
 }
 

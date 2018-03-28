@@ -9,7 +9,7 @@
 Pod::Spec.new do |s|
   s.name             = 'SideViewManager'
   s.version          = '0.1.0'
-  s.summary          = 'A short description of SideViewManager.'
+  s.summary          = 'A class for managing the presentation of a view moving on and off screen.'
 
 # This description is used to generate tags and improve search results.
 #   * Think: What does it do? Why did you write it? What is the focus?
@@ -18,15 +18,14 @@ Pod::Spec.new do |s|
 #   * Finally, don't worry about the indent, CocoaPods strips it!
 
   s.description      = <<-DESC
-TODO: Add long description of the pod here.
+This pod provides a manager class titled `SideViewManager` which handles the presentation of moving a view on and off screen. The frames for on and off screen are customizable, as well as there are gestures for swiping the view on and off screen as well as tap away to dismiss.
                        DESC
 
   s.homepage         = 'https://github.com/AndrewBoryk/SideViewManager'
-  # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
-  s.author           = { 'AndrewBoryk' => 'aboryk@its.jnj.com' }
+  s.author           = { 'AndrewBoryk' => 'andrewcboryk@gmail.com' }
   s.source           = { :git => 'https://github.com/AndrewBoryk/SideViewManager.git', :tag => s.version.to_s }
-  # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
+  s.social_media_url = 'https://twitter.com/trepislife'
 
   s.ios.deployment_target = '8.0'
 
