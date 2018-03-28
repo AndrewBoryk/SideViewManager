@@ -9,9 +9,9 @@
 /* Begin PBXBuildFile section */
 		043D48C920CF31DBD2FE820412F6901A /* Pods-SideViewManager_Example-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 8DDD07459022F159BE032AE006642741 /* Pods-SideViewManager_Example-dummy.m */; };
 		0E2E73087C93C8D620F7D27DADA49B90 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6604A7D69453B4569E4E4827FB9155A9 /* Foundation.framework */; };
-		436BD5D6206466250040601E /* SideViewManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 436BD5D5206466250040601E /* SideViewManager.swift */; };
-		436BD5DA206466310040601E /* CGFloat+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 436BD5D7206466310040601E /* CGFloat+Extensions.swift */; };
-		436BD5DC206466310040601E /* UIView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 436BD5D9206466310040601E /* UIView+Extensions.swift */; };
+		433927E6206C182500B4EBB1 /* CGFloat+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 433927E3206C182500B4EBB1 /* CGFloat+Extensions.swift */; };
+		433927E7206C182500B4EBB1 /* UIView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 433927E4206C182500B4EBB1 /* UIView+Extensions.swift */; };
+		433927E8206C182500B4EBB1 /* SideViewManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 433927E5206C182500B4EBB1 /* SideViewManager.swift */; };
 		59AFB530FDDFD1174C913A3CE49BD11D /* Pods-SideViewManager_Example-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 7CBDFD9B27BBC00F35CC8F506EEBF907 /* Pods-SideViewManager_Example-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5F3A84D5903284B350E53D95BCC239F7 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6604A7D69453B4569E4E4827FB9155A9 /* Foundation.framework */; };
 		8C09BC5162059996FD6B23A92495592C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6604A7D69453B4569E4E4827FB9155A9 /* Foundation.framework */; };
@@ -41,9 +41,9 @@
 		1B173B9004518BE2638E64BCD69A3CC7 /* Pods-SideViewManager_Example-resources.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-SideViewManager_Example-resources.sh"; sourceTree = "<group>"; };
 		1F268EE6711764C4EBBF7D122554CB2D /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		410628F4E2D979A911CCFA368A248074 /* Pods-SideViewManager_Tests-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-SideViewManager_Tests-acknowledgements.plist"; sourceTree = "<group>"; };
-		436BD5D5206466250040601E /* SideViewManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SideViewManager.swift; sourceTree = "<group>"; };
-		436BD5D7206466310040601E /* CGFloat+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CGFloat+Extensions.swift"; sourceTree = "<group>"; };
-		436BD5D9206466310040601E /* UIView+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIView+Extensions.swift"; sourceTree = "<group>"; };
+		433927E3206C182500B4EBB1 /* CGFloat+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CGFloat+Extensions.swift"; sourceTree = "<group>"; };
+		433927E4206C182500B4EBB1 /* UIView+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIView+Extensions.swift"; sourceTree = "<group>"; };
+		433927E5206C182500B4EBB1 /* SideViewManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SideViewManager.swift; path = SideViewManager/Classes/SideViewManager.swift; sourceTree = "<group>"; };
 		464BEB4EB220D870DC0DAFD677DDCB71 /* Pods-SideViewManager_Tests-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-SideViewManager_Tests-frameworks.sh"; sourceTree = "<group>"; };
 		467CA1161F7F3CED8BE110C795F25B97 /* Pods_SideViewManager_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SideViewManager_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		62106DC5C5D781D4EC02ED1AC6B9B84F /* Pods-SideViewManager_Example-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-SideViewManager_Example-frameworks.sh"; sourceTree = "<group>"; };
@@ -110,13 +110,14 @@
 			path = "Example/Pods/Target Support Files/SideViewManager";
 			sourceTree = "<group>";
 		};
-		436BD5DD206466370040601E /* Extensions */ = {
+		433927E9206C182A00B4EBB1 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				436BD5D7206466310040601E /* CGFloat+Extensions.swift */,
-				436BD5D9206466310040601E /* UIView+Extensions.swift */,
+				433927E3206C182500B4EBB1 /* CGFloat+Extensions.swift */,
+				433927E4206C182500B4EBB1 /* UIView+Extensions.swift */,
 			);
-			path = Extensions;
+			name = Extensions;
+			path = SideViewManager/Classes/Extensions;
 			sourceTree = "<group>";
 		};
 		7DB346D0F39D3F0E887471402A8071AB = {
@@ -212,8 +213,8 @@
 		F5B242E947DB9E5E13A36627FEE7D38C /* SideViewManager */ = {
 			isa = PBXGroup;
 			children = (
-				436BD5D5206466250040601E /* SideViewManager.swift */,
-				436BD5DD206466370040601E /* Extensions */,
+				433927E9206C182A00B4EBB1 /* Extensions */,
+				433927E5206C182500B4EBB1 /* SideViewManager.swift */,
 				37966DA84CCE7C03E102A6E7E294153A /* Support Files */,
 			);
 			name = SideViewManager;
@@ -356,10 +357,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				433927E7206C182500B4EBB1 /* UIView+Extensions.swift in Sources */,
+				433927E6206C182500B4EBB1 /* CGFloat+Extensions.swift in Sources */,
 				FFCE18C0182F642A9395196FA908DC05 /* SideViewManager-dummy.m in Sources */,
-				436BD5DC206466310040601E /* UIView+Extensions.swift in Sources */,
-				436BD5DA206466310040601E /* CGFloat+Extensions.swift in Sources */,
-				436BD5D6206466250040601E /* SideViewManager.swift in Sources */,
+				433927E8206C182500B4EBB1 /* SideViewManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
