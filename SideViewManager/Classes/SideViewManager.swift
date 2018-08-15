@@ -109,11 +109,22 @@ public class SideViewManager {
         let offOrigin = offScreenFrame.origin
         let sideOrigin = view.frame.origin
         switch swipeDirection {
+        case .horizontal where isOppositeDirection:
+            return (onOrigin.x - sideOrigin.x) / (onOrigin.x - offOrigin.x)
         case .horizontal:
             return (offOrigin.x - sideOrigin.x) / (offOrigin.x - onOrigin.x)
+        case .vertical where isOppositeDirection:
+            return (onOrigin.y - sideOrigin.y) / (onOrigin.y - offOrigin.y)
         case .vertical:
             return (offOrigin.y - sideOrigin.y) / (offOrigin.y - onOrigin.y)
         }
+    }
+
+    /// Returns whether the offScreenFrame origin is less than the onScreenFrame origin
+    private var isOppositeDirection: Bool {
+        let isHorizontalOpposite = swipeDirection == .horizontal && offScreenFrame.origin.x < onScreenFrame.origin.x
+        let isVerticalOpposite = swipeDirection == .vertical && offScreenFrame.origin.y < onScreenFrame.origin.y
+        return isHorizontalOpposite || isVerticalOpposite
     }
     
     // MARK: - Initializer
@@ -152,7 +163,8 @@ public class SideViewManager {
     
     /// Set the sideController's view to a specific offset (0 being fully off-screen and 1 being fully on-screen), at a given animation duration, which is defaulted to 0.25 seconds
     public func move(to offset: CGFloat, duration: TimeInterval = 0.25) {
-        let newOffset = 1 - offset.clamped(min: 0, max: 1)
+        let clampedOffset = offset.clamped(min: 0, max: 1)
+        let newOffset = isOppositeDirection ? clampedOffset : 1 - clampedOffset
         let newFrame = CGRect(offset: newOffset, offScreen: offScreenFrame, onScreen: onScreenFrame)
         UIView.animate(withDuration: duration, delay: 0, options: .curveEaseOut, animations: {
             self.view.frame = newFrame
@@ -200,7 +212,7 @@ public class SideViewManager {
         }
     }
     
-    /// Handles the pan gesture for the `swipeGesture`
+    /// Handles the pan gesture for the `swipeGesture` (couldn't resist the naming)
     @objc private func panHandler(_ recognizer: UIPanGestureRecognizer) {
         guard let window = window else {
             return

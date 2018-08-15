@@ -26,7 +26,7 @@ class ViewController: UIViewController {
         let offScreenFrame = CGRect(x: view.frame.width, y: originY, width: sideWidth, height: sideHeight)
         let onScreenFrame = CGRect(x: view.frame.width - sideWidth, y: originY, width: sideWidth, height: sideHeight)
         
-        let manager = SideViewManager(controller: sideController, offScreenFrame: offScreenFrame, onScreenFrame: onScreenFrame)
+        let manager = SideViewManager(controller: sideController, offScreenFrame: onScreenFrame, onScreenFrame: offScreenFrame)
         manager.swipeDirection = .horizontal
         
         return manager
