@@ -1,6 +1,6 @@
 # SideViewManager
 
-## v0.2.0
+## v0.4.0
 #### Added:
 * Added README documentation
 
