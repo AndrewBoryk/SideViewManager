@@ -25,13 +25,13 @@ public class SideViewManager {
         case vertical
     }
     
-    /// The controller which will have its view controller by this manager
+    /// The controller which will have its view controlled by this manager
     private(set) public var sideController: UIViewController?
     
     /// The view which will have its v
     private(set) public var sideView: UIView?
     
-    /// Direction that the manager's pan recognizer will recognize when enabled
+    /// Direction that the manager's pan recognizer will recognize when enabled (horizontal by default)
     public var swipeDirection: SwipeDirection = .horizontal
     
     /// Delegate for the SideViewManager
@@ -123,8 +123,8 @@ public class SideViewManager {
     ///   - sideController: The controller that will have its view managed by the manager
     ///   - offScreenFrame: The frame that the sideController's view should be at when off-screen, or otherwise at its default state
     ///   - onScreenFrame: The frame that the sideController's view should be at when on-screen, or otherwise at its full-presented state
-    public init(sideController: UIViewController, offScreenFrame: CGRect? = nil, onScreenFrame: CGRect? = nil) {
-        self.sideController = sideController
+    public init(controller: UIViewController, offScreenFrame: CGRect? = nil, onScreenFrame: CGRect? = nil) {
+        sideController = controller
         update(offScreenFrame: offScreenFrame, onScreenFrame: onScreenFrame)
     }
     
