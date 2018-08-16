@@ -38,7 +38,7 @@ public class SideViewManager {
     public weak var delegate: SideViewManagerDelegate?
     
     /// Frame for when the view should be off-screen, or otherwise the default position of the managed view
-    public lazy var offScreenFrame: CGRect = {
+    public lazy var startingFrame: CGRect = {
         guard let window = window else {
             return .zero
         }
@@ -48,7 +48,7 @@ public class SideViewManager {
     }()
     
     /// Frame for when the view should be on-screen, or otherwise the final "fully presented" position of the managed view
-    public lazy var onScreenFrame: CGRect = {
+    public lazy var endingFrame: CGRect = {
         guard let window = window else {
             return .zero
         }
@@ -105,8 +105,8 @@ public class SideViewManager {
     
     /// Returns the current offset of the side view
     private var currentOffset: CGFloat {
-        let onOrigin = onScreenFrame.origin
-        let offOrigin = offScreenFrame.origin
+        let onOrigin = endingFrame.origin
+        let offOrigin = startingFrame.origin
         let sideOrigin = view.frame.origin
         switch swipeDirection {
         case .horizontal where isOppositeDirection:
@@ -120,10 +120,10 @@ public class SideViewManager {
         }
     }
 
-    /// Returns whether the offScreenFrame origin is less than the onScreenFrame origin
+    /// Returns whether the startingFrame origin is less than the endingFrame origin
     private var isOppositeDirection: Bool {
-        let isHorizontalOpposite = swipeDirection == .horizontal && offScreenFrame.origin.x < onScreenFrame.origin.x
-        let isVerticalOpposite = swipeDirection == .vertical && offScreenFrame.origin.y < onScreenFrame.origin.y
+        let isHorizontalOpposite = swipeDirection == .horizontal && startingFrame.origin.x < endingFrame.origin.x
+        let isVerticalOpposite = swipeDirection == .vertical && startingFrame.origin.y < endingFrame.origin.y
         return isHorizontalOpposite || isVerticalOpposite
     }
     
@@ -132,22 +132,22 @@ public class SideViewManager {
     ///
     /// - Parameters:
     ///   - sideController: The controller that will have its view managed by the manager
-    ///   - offScreenFrame: The frame that the sideController's view should be at when off-screen, or otherwise at its default state
-    ///   - onScreenFrame: The frame that the sideController's view should be at when on-screen, or otherwise at its full-presented state
-    public init(controller: UIViewController, offScreenFrame: CGRect? = nil, onScreenFrame: CGRect? = nil) {
+    ///   - startingFrame: The frame that the sideController's view should be at when off-screen, or otherwise at its default state
+    ///   - endingFrame: The frame that the sideController's view should be at when on-screen, or otherwise at its full-presented state
+    public init(controller: UIViewController, startingFrame: CGRect? = nil, endingFrame: CGRect? = nil) {
         sideController = controller
-        update(offScreenFrame: offScreenFrame, onScreenFrame: onScreenFrame)
+        update(startingFrame: startingFrame, endingFrame: endingFrame)
     }
     
     /// Initialize a `SideViewManager` with a view to manage, and customizable on-screen and off-screen frames
     ///
     /// - Parameters:
     ///   - view: View which will be managed
-    ///   - offScreenFrame: The frame that the sideController's view should be at when off-screen, or otherwise at its default state
-    ///   - onScreenFrame: The frame that the sideController's view should be at when on-screen, or otherwise at its full-presented state
-    public init(view: UIView, offScreenFrame: CGRect? = nil, onScreenFrame: CGRect? = nil) {
+    ///   - startingFrame: The frame that the sideController's view should be at when off-screen, or otherwise at its default state
+    ///   - endingFrame: The frame that the sideController's view should be at when on-screen, or otherwise at its full-presented state
+    public init(view: UIView, startingFrame: CGRect? = nil, endingFrame: CGRect? = nil) {
         sideView = view
-        update(offScreenFrame: offScreenFrame, onScreenFrame: onScreenFrame)
+        update(startingFrame: startingFrame, endingFrame: endingFrame)
     }
     
     // MARK: - Public
@@ -165,7 +165,7 @@ public class SideViewManager {
     public func move(to offset: CGFloat, duration: TimeInterval = 0.25) {
         let clampedOffset = offset.clamped(min: 0, max: 1)
         let newOffset = isOppositeDirection ? clampedOffset : 1 - clampedOffset
-        let newFrame = CGRect(offset: newOffset, offScreen: offScreenFrame, onScreen: onScreenFrame)
+        let newFrame = CGRect(offset: newOffset, starting: startingFrame, ending: endingFrame)
         UIView.animate(withDuration: duration, delay: 0, options: .curveEaseOut, animations: {
             self.view.frame = newFrame
         }) { _ in
@@ -173,12 +173,12 @@ public class SideViewManager {
         }
     }
     
-    /// Present the sideController's view, which means to move it to its `onScreenFrame` value, at a given animation duration, which is defaulted to 0.25 seconds
+    /// Present the sideController's view, which means to move it to its `endingFrame` value, at a given animation duration, which is defaulted to 0.25 seconds
     public func present(animationDuration: TimeInterval = 0.25) {
         move(to: 1, duration: animationDuration)
     }
     
-    /// Dismiss the sideController's view, which means to move it to its `offScreenFrame` value, at a given animation duration, which is defaulted to 0.25 seconds
+    /// Dismiss the sideController's view, which means to move it to its `startingFrame` value, at a given animation duration, which is defaulted to 0.25 seconds
     public func dismiss(animationDuration: TimeInterval = 0.25) {
         move(to: 0, duration: animationDuration)
     }
@@ -245,7 +245,7 @@ public class SideViewManager {
             let maxOffset = isHorizontal ? window.frame.width : window.frame.height
             let rTranslation = recognizer.translation(in: window)
             let translation = panStartLocation + (isHorizontal ? rTranslation.x : rTranslation.y)
-            let comparisonOffset = isHorizontal ? onScreenFrame.width : onScreenFrame.height
+            let comparisonOffset = isHorizontal ? endingFrame.width : endingFrame.height
             let panTranslation = translation.clamped(min: maxOffset - comparisonOffset, max: maxOffset)
             let offset = (maxOffset - panTranslation) / comparisonOffset
             move(to: offset, duration: 0)
@@ -259,14 +259,14 @@ public class SideViewManager {
         }
     }
     
-    /// Updates the offScreenFrame and onScreenFrame if non-nil, shared in the initializers and not to be used elsewhere
-    private func update(offScreenFrame: CGRect? = nil, onScreenFrame: CGRect? = nil) {
-        if let onScreenFrame = offScreenFrame {
-            self.offScreenFrame = onScreenFrame
+    /// Updates the startingFrame and endingFrame if non-nil, shared in the initializers and not to be used elsewhere
+    private func update(startingFrame: CGRect? = nil, endingFrame: CGRect? = nil) {
+        if let endingFrame = startingFrame {
+            self.startingFrame = endingFrame
         }
         
-        if let onScreenFrame = onScreenFrame {
-            self.onScreenFrame = onScreenFrame
+        if let endingFrame = endingFrame {
+            self.endingFrame = endingFrame
         }
         
         guard let window = window else {
@@ -274,7 +274,7 @@ public class SideViewManager {
         }
         
         if !window.subviews.contains(view) {
-            view.frame = self.offScreenFrame
+            view.frame = self.startingFrame
             view.setShadow()
             
             window.addSubview(view)

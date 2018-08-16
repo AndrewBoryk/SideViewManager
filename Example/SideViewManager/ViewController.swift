@@ -17,16 +17,16 @@ class ViewController: UIViewController {
         return controller
     }()
 
-    private lazy var manager = horizontalManager
+    private lazy var manager = verticalManager
     
     private var horizontalManager: SideViewManager {
         let originY = UIApplication.shared.statusBarFrame.height + 4
         let sideWidth: CGFloat = 300
         let sideHeight = sideController.view.frame.height - originY * 2
-        let offScreenFrame = CGRect(x: view.frame.width, y: originY, width: sideWidth, height: sideHeight)
-        let onScreenFrame = CGRect(x: view.frame.width - sideWidth, y: originY, width: sideWidth, height: sideHeight)
+        let startingFrame = CGRect(x: view.frame.width, y: originY, width: sideWidth, height: sideHeight)
+        let endingFrame = CGRect(x: view.frame.width - sideWidth, y: originY, width: sideWidth, height: sideHeight)
         
-        let manager = SideViewManager(controller: sideController, offScreenFrame: onScreenFrame, onScreenFrame: offScreenFrame)
+        let manager = SideViewManager(controller: sideController, startingFrame: startingFrame, endingFrame: endingFrame)
         manager.swipeDirection = .horizontal
         
         return manager
@@ -34,10 +34,10 @@ class ViewController: UIViewController {
     
     private var verticalManager: SideViewManager {
         let sideHeight = view.frame.height
-        let offScreenFrame = CGRect(x: 0, y: sideHeight, width: view.frame.width, height: sideHeight)
-        let onScreenFrame = CGRect(x: 0, y: sideHeight, width: view.frame.width, height: sideHeight)
+        let startingFrame = CGRect(x: 0, y: sideHeight, width: view.frame.width, height: sideHeight)
+        let endingFrame = CGRect(x: 0, y: 0, width: view.frame.width, height: sideHeight)
         
-        let manager = SideViewManager(controller: sideController, offScreenFrame: offScreenFrame, onScreenFrame: onScreenFrame)
+        let manager = SideViewManager(controller: sideController, startingFrame: startingFrame, endingFrame: endingFrame)
         manager.swipeDirection = .vertical
         return manager
     }
