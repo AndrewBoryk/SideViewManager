@@ -13,18 +13,18 @@ extension CGFloat {
         return self < min ? min : (self > max ? max : self)
     }
     
-    func calculate(offScreen: CGFloat, onScreen: CGFloat) -> CGFloat {
-        return self * (offScreen - onScreen) + onScreen
+    func calculate(starting: CGFloat, ending: CGFloat) -> CGFloat {
+        return self * (starting - ending) + ending
     }
 }
 
 extension CGRect {
     
-    init(offset: CGFloat, offScreen: CGRect, onScreen: CGRect) {
-        let offsetX = offset.calculate(offScreen: offScreen.origin.x, onScreen: onScreen.origin.x)
-        let offsetY = offset.calculate(offScreen: offScreen.origin.y, onScreen: onScreen.origin.y)
-        let offsetWidth = offset.calculate(offScreen: offScreen.width, onScreen: onScreen.width)
-        let offsetHeight = offset.calculate(offScreen: offScreen.height, onScreen: onScreen.height)
+    init(offset: CGFloat, starting: CGRect, ending: CGRect) {
+        let offsetX = offset.calculate(starting: starting.origin.x, ending: ending.origin.x)
+        let offsetY = offset.calculate(starting: starting.origin.y, ending: ending.origin.y)
+        let offsetWidth = offset.calculate(starting: starting.width, ending: ending.width)
+        let offsetHeight = offset.calculate(starting: starting.height, ending: ending.height)
         
         self.init(x: offsetX, y: offsetY, width: offsetWidth, height: offsetHeight)
     }

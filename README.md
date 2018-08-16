@@ -61,20 +61,20 @@ import SideViewManager
 
 ### Initialization
 
-There are two ways to initialize a `SideViewManager`, either with a `UIViewController` (the manager will cooperate with the controller's `view`) or with a `UIView`. Then, the view must also be given an `onScreenFrame` and `offScreenFrame`. These frames basically specify the two positions that the screen transitions between.
+There are two ways to initialize a `SideViewManager`, either with a `UIViewController` (the manager will cooperate with the controller's `view`) or with a `UIView`. Then, the view must also be given an `endingFrame` and `startingFrame`. These frames basically specify the two positions that the screen transitions between.
 
 ```swift
 
-let offScreenFrame = CGRect(x: self.view.frame.width, y: 0, width: self.view.frame.width, height: self.view.frame.height)
-let onScreenFrame = self.view.frame
+let startingFrame = CGRect(x: self.view.frame.width, y: 0, width: self.view.frame.width, height: self.view.frame.height)
+let endingFrame = self.view.frame
 
 // Initialize with controller
 let sideController = UIViewController()
-let manager = SideViewManager(controller: sideController, offScreenFrame: offScreenFrame, onScreenFrame: onScreenFrame)
+let manager = SideViewManager(controller: sideController, startingFrame: startingFrame, endingFrame: endingFrame)
 
 // Initialize with view
 let sideView = UIView()
-let manager = SideViewManager(view: sideView, offScreenFrame: offScreenFrame, onScreenFrame: onScreenFrame)
+let manager = SideViewManager(view: sideView, startingFrame: startingFrame, endingFrame: endingFrame)
 
 ```
 
@@ -101,7 +101,7 @@ manager.swipeDirection = .vertical
 
 Lastly, in terms of usage, there are functions to manually present and dismiss the SideView, as well as manually set the offset of the SideView.
 
-```
+```swift
 
 // Presents the sideView with an animation speed of 1 second. 
 // By default, the animation speed is 0.25. 
